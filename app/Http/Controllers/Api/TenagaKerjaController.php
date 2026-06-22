@@ -7,22 +7,9 @@ use Illuminate\Http\Request;
 
 class TenagaKerjaController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $query = TenagaKerja::query();
-
-        if ($request->filled('search')) {
-            $s = $request->search;
-            $query->where('nama', 'like', "%$s%")
-                  ->orWhere('nik', 'like', "%$s%")
-                  ->orWhere('email', 'like', "%$s%");
-        }
-
-        if ($request->get('paginate') === 'false') {
-            return response()->json(['success' => true, 'data' => $query->get()]);
-        }
-
-        $data = $query->paginate(10);
+        $data = TenagaKerja::paginate(10);
         return response()->json(['success' => true, 'data' => $data]);
     }
 

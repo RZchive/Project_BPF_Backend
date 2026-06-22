@@ -7,13 +7,9 @@ use Illuminate\Http\Request;
 
 class LpkController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $query = Lpk::with('user');
-        if ($request->get('paginate') === 'false') {
-            return response()->json(['success' => true, 'data' => $query->get()]);
-        }
-        return response()->json(['success' => true, 'data' => $query->paginate(10)]);
+        return response()->json(['success' => true, 'data' => Lpk::with('user')->paginate(10)]);
     }
 
     public function store(Request $request)
