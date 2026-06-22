@@ -7,9 +7,22 @@ use Illuminate\Http\Request;
 
 class TracerStudyController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $data = TracerStudy::with('tenagaKerja')->paginate(10);
+        $query = TracerStudy::with('tenagaKerja');
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function($q) use ($s) {
+                $q->whereHas('tenagaKerja', function($inner) use ($s) {
+                    $inner->where('nama', 'like', "%$s%")
+                          ->orWhere('nik', 'like', "%$s%");
+                })->orWhere('nama_perusahaan', 'like', "%$s%")
+                  ->orWhere('status_alumni', 'like', "%$s%");
+            });
+        }
+
+        $data = $query->paginate(10);
         return response()->json(['success' => true, 'data' => $data]);
     }
 
