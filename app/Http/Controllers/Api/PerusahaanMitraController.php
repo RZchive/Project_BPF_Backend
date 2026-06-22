@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -7,40 +8,101 @@ use Illuminate\Http\Request;
 
 class PerusahaanMitraController extends Controller
 {
+    // GET /api/perusahaan-mitra
     public function index()
     {
-        return response()->json(['success' => true, 'data' => PerusahaanMitra::paginate(10)]);
+        $data = PerusahaanMitra::latest()->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 
+    // POST /api/perusahaan-mitra
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_perusahaan' => 'required',
-            'bidang_usaha'    => 'required',
-            'alamat'          => 'required',
-            'kontak'          => 'required',
-            'email'           => 'required|email',
+            'nama_perusahaan' => 'required|string|max:255',
+            'bidang_usaha'    => 'nullable|string|max:255',
+            'alamat'          => 'nullable|string',
+            'kontak'          => 'nullable|string|max:255',
+            'email'           => 'nullable|email|max:255',
         ]);
 
-        $p = PerusahaanMitra::create($validated);
-        return response()->json(['success' => true, 'data' => $p], 201);
+        $perusahaan = PerusahaanMitra::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Perusahaan mitra berhasil ditambahkan',
+            'data'    => $perusahaan
+        ], 201);
     }
 
-    public function show($id)
+    // GET /api/perusahaan-mitra/{id}
+    public function show(string $id)
     {
-        return response()->json(['success' => true, 'data' => PerusahaanMitra::findOrFail($id)]);
+        $perusahaan = PerusahaanMitra::find($id);
+
+        if (!$perusahaan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Perusahaan mitra tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $perusahaan
+        ]);
     }
 
-    public function update(Request $request, $id)
+    // PUT /api/perusahaan-mitra/{id}
+    public function update(Request $request, string $id)
     {
-        $p = PerusahaanMitra::findOrFail($id);
-        $p->update($request->all());
-        return response()->json(['success' => true, 'data' => $p]);
+        $perusahaan = PerusahaanMitra::find($id);
+
+        if (!$perusahaan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Perusahaan mitra tidak ditemukan'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'nama_perusahaan' => 'required|string|max:255',
+            'bidang_usaha'    => 'nullable|string|max:255',
+            'alamat'          => 'nullable|string',
+            'kontak'          => 'nullable|string|max:255',
+            'email'           => 'nullable|email|max:255',
+        ]);
+
+        $perusahaan->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Perusahaan mitra berhasil diperbarui',
+            'data'    => $perusahaan
+        ]);
     }
 
-    public function destroy($id)
+    // DELETE /api/perusahaan-mitra/{id}
+    public function destroy(string $id)
     {
-        PerusahaanMitra::findOrFail($id)->delete();
-        return response()->json(['success' => true, 'message' => 'Data berhasil dihapus']);
+        $perusahaan = PerusahaanMitra::find($id);
+
+        if (!$perusahaan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Perusahaan mitra tidak ditemukan'
+            ], 404);
+        }
+
+        $perusahaan->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Perusahaan mitra berhasil dihapus'
+        ]);
     }
 }

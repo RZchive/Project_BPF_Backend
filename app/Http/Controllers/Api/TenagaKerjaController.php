@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -9,44 +10,114 @@ class TenagaKerjaController extends Controller
 {
     public function index()
     {
-        $data = TenagaKerja::paginate(10);
-        return response()->json(['success' => true, 'data' => $data]);
+        $data = TenagaKerja::latest()->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nik'                 => 'required|unique:tenaga_kerja',
-            'nama'                => 'required',
-            'email'               => 'required|email',
-            'no_hp'               => 'required',
-            'jenis_kelamin'       => 'required|in:L,P',
-            'tanggal_lahir'       => 'required|date',
-            'alamat'              => 'required',
-            'pendidikan_terakhir' => 'required',
-            'status_pekerjaan'    => 'required',
+
+            'nik' => 'required|unique:tenaga_kerja,nik',
+            'nama' => 'required|string|max:255',
+            'email' => 'nullable|email',
+            'no_hp' => 'nullable|string|max:20',
+            'jenis_kelamin' => 'nullable|string|max:20',
+            'tanggal_lahir' => 'nullable|date',
+            'alamat' => 'nullable|string',
+            'pendidikan_terakhir' => 'nullable|string|max:255',
+            'status_pekerjaan' => 'nullable|string|max:255',
+            'foto' => 'nullable|string'
+
         ]);
 
-        $tk = TenagaKerja::create($validated);
-        return response()->json(['success' => true, 'data' => $tk], 201);
+        $tenagaKerja = TenagaKerja::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data tenaga kerja berhasil ditambahkan',
+            'data' => $tenagaKerja
+        ], 201);
     }
 
-    public function show($id)
+    public function show(string $id)
     {
-        $tk = TenagaKerja::with(['sertifikasi', 'tracerStudy', 'pemagangan', 'pesertaPelatihan'])->findOrFail($id);
-        return response()->json(['success' => true, 'data' => $tk]);
+        $data = TenagaKerja::find($id);
+
+        if (!$data) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
-        $tk = TenagaKerja::findOrFail($id);
-        $tk->update($request->all());
-        return response()->json(['success' => true, 'data' => $tk]);
+        $data = TenagaKerja::find($id);
+
+        if (!$data) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+
+        }
+
+        $validated = $request->validate([
+
+            'nik' => 'required|unique:tenaga_kerja,nik,' . $id,
+            'nama' => 'required|string|max:255',
+            'email' => 'nullable|email',
+            'no_hp' => 'nullable|string|max:20',
+            'jenis_kelamin' => 'nullable|string|max:20',
+            'tanggal_lahir' => 'nullable|date',
+            'alamat' => 'nullable|string',
+            'pendidikan_terakhir' => 'nullable|string|max:255',
+            'status_pekerjaan' => 'nullable|string|max:255',
+            'foto' => 'nullable|string'
+
+        ]);
+
+        $data->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data tenaga kerja berhasil diperbarui',
+            'data' => $data
+        ]);
     }
 
-    public function destroy($id)
+    public function destroy(string $id)
     {
-        TenagaKerja::findOrFail($id)->delete();
-        return response()->json(['success' => true, 'message' => 'Data berhasil dihapus']);
+        $data = TenagaKerja::find($id);
+
+        if (!$data) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+
+        }
+
+        $data->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data tenaga kerja berhasil dihapus'
+        ]);
     }
 }
