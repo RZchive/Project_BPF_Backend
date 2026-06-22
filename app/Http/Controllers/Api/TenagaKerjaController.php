@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class TenagaKerjaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $data = TenagaKerja::latest()->get();
 

@@ -8,27 +8,37 @@ use Illuminate\Http\Request;
 
 class PerusahaanMitraController extends Controller
 {
-    // GET /api/perusahaan-mitra
-    public function index()
+    private array $rules = [
+        'nama_perusahaan' => 'required|string|max:255',
+        'bidang_usaha'    => 'required|string|max:255',
+        'alamat'          => 'required|string',
+        'kontak'          => 'required|string|max:20',
+        'email'           => 'required|email|max:255',
+    ];
+
+    public function index(Request $request)
     {
-        $data = PerusahaanMitra::latest()->get();
+        $query = PerusahaanMitra::query();
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where('nama_perusahaan', 'like', "%$s%")
+                  ->orWhere('bidang_usaha', 'like', "%$s%")
+                  ->orWhere('email', 'like', "%$s%");
+        }
 
         return response()->json([
             'success' => true,
-            'data' => $data
+            'data'    => $query->orderByDesc('created_at')->paginate(10),
         ]);
     }
 
     // POST /api/perusahaan-mitra
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'nama_perusahaan' => 'required|string|max:255',
-            'bidang_usaha'    => 'nullable|string|max:255',
-            'alamat'          => 'nullable|string',
-            'kontak'          => 'nullable|string|max:255',
-            'email'           => 'nullable|email|max:255',
-        ]);
+        $validated = $request->validate(array_merge($this->rules, [
+            'email' => 'required|email|max:255|unique:perusahaan_mitra,email',
+        ]));
 
         $perusahaan = PerusahaanMitra::create($validated);
 
@@ -42,67 +52,42 @@ class PerusahaanMitraController extends Controller
     // GET /api/perusahaan-mitra/{id}
     public function show(string $id)
     {
-        $perusahaan = PerusahaanMitra::find($id);
+        $p = PerusahaanMitra::find($id);
 
-        if (!$perusahaan) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Perusahaan mitra tidak ditemukan'
-            ], 404);
+        if (!$p) {
+            return response()->json(['success' => false, 'message' => 'Data tidak ditemukan'], 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $perusahaan
-        ]);
+        return response()->json(['success' => true, 'data' => $p]);
     }
 
     // PUT /api/perusahaan-mitra/{id}
     public function update(Request $request, string $id)
     {
-        $perusahaan = PerusahaanMitra::find($id);
+        $p = PerusahaanMitra::find($id);
 
-        if (!$perusahaan) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Perusahaan mitra tidak ditemukan'
-            ], 404);
+        if (!$p) {
+            return response()->json(['success' => false, 'message' => 'Data tidak ditemukan'], 404);
         }
 
-        $validated = $request->validate([
-            'nama_perusahaan' => 'required|string|max:255',
-            'bidang_usaha'    => 'nullable|string|max:255',
-            'alamat'          => 'nullable|string',
-            'kontak'          => 'nullable|string|max:255',
-            'email'           => 'nullable|email|max:255',
-        ]);
+        $validated = $request->validate(array_merge($this->rules, [
+            'email' => 'required|email|max:255|unique:perusahaan_mitra,email,' . $id,
+        ]));
 
-        $perusahaan->update($validated);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Perusahaan mitra berhasil diperbarui',
-            'data'    => $perusahaan
-        ]);
+        $p->update($validated);
+        return response()->json(['success' => true, 'data' => $p]);
     }
 
     // DELETE /api/perusahaan-mitra/{id}
     public function destroy(string $id)
     {
-        $perusahaan = PerusahaanMitra::find($id);
+        $p = PerusahaanMitra::find($id);
 
-        if (!$perusahaan) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Perusahaan mitra tidak ditemukan'
-            ], 404);
+        if (!$p) {
+            return response()->json(['success' => false, 'message' => 'Data tidak ditemukan'], 404);
         }
 
-        $perusahaan->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Perusahaan mitra berhasil dihapus'
-        ]);
+        $p->delete();
+        return response()->json(['success' => true, 'message' => 'Data berhasil dihapus']);
     }
 }
