@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -32,17 +33,24 @@ class PerusahaanMitraController extends Controller
         ]);
     }
 
+    // POST /api/perusahaan-mitra
     public function store(Request $request)
     {
         $validated = $request->validate(array_merge($this->rules, [
             'email' => 'required|email|max:255|unique:perusahaan_mitra,email',
         ]));
 
-        $p = PerusahaanMitra::create($validated);
-        return response()->json(['success' => true, 'data' => $p], 201);
+        $perusahaan = PerusahaanMitra::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Perusahaan mitra berhasil ditambahkan',
+            'data'    => $perusahaan
+        ], 201);
     }
 
-    public function show($id)
+    // GET /api/perusahaan-mitra/{id}
+    public function show(string $id)
     {
         $p = PerusahaanMitra::find($id);
 
@@ -53,7 +61,8 @@ class PerusahaanMitraController extends Controller
         return response()->json(['success' => true, 'data' => $p]);
     }
 
-    public function update(Request $request, $id)
+    // PUT /api/perusahaan-mitra/{id}
+    public function update(Request $request, string $id)
     {
         $p = PerusahaanMitra::find($id);
 
@@ -69,7 +78,8 @@ class PerusahaanMitraController extends Controller
         return response()->json(['success' => true, 'data' => $p]);
     }
 
-    public function destroy($id)
+    // DELETE /api/perusahaan-mitra/{id}
+    public function destroy(string $id)
     {
         $p = PerusahaanMitra::find($id);
 

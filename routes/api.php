@@ -1,44 +1,55 @@
 <?php
-use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\TenagaKerjaController;
 use App\Http\Controllers\Api\LpkController;
 use App\Http\Controllers\Api\PerusahaanMitraController;
-use App\Http\Controllers\Api\PelatihanController;
-use App\Http\Controllers\Api\PesertaPelatihanController;
-use App\Http\Controllers\Api\PemaganganganController;
+use App\Http\Controllers\Api\TenagaKerjaController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\SertifikasiController;
-use App\Http\Controllers\Api\TracerStudyController;
-use App\Http\Controllers\Api\JobFairController;
-use App\Http\Controllers\Api\LaporanController;
 
-// ==============================
-// PUBLIC (tanpa login)
-// ==============================
+// ======================================
+// PUBLIC ROUTES
+// ======================================
+
 Route::post('/login', [AuthController::class, 'login']);
 
-// ==============================
-// PROTECTED (wajib pakai token)
-// ==============================
+// ======================================
+// PROTECTED ROUTES (SANCTUM)
+// ======================================
+
 Route::middleware('auth:sanctum')->group(function () {
 
-    // Auth
+    // ======================
+    // AUTH
+    // ======================
+
+    Route::get('/me', [AuthController::class, 'me']);
+
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me',      [AuthController::class, 'me']);
 
-    // Master Data
-    Route::apiResource('tenaga-kerja',      TenagaKerjaController::class);
-    Route::apiResource('lpk',               LpkController::class);
-    Route::apiResource('perusahaan-mitra',  PerusahaanMitraController::class);
+    // ======================
+    // LPK
+    // ======================
 
-    // Kegiatan
-    Route::apiResource('pelatihan',         PelatihanController::class);
-    Route::apiResource('peserta-pelatihan', PesertaPelatihanController::class);
-    Route::apiResource('pemagangan',        PemaganganganController::class);
-    Route::apiResource('sertifikasi',       SertifikasiController::class);
-    Route::apiResource('tracer-study',      TracerStudyController::class);
-    Route::apiResource('job-fair',          JobFairController::class);
+    Route::apiResource(
+        'lpk',
+        LpkController::class
+    );
 
-    // Laporan
-    Route::apiResource('laporan',           LaporanController::class);
+    // ======================
+    // TENAGA KERJA
+    // ======================
+
+    Route::apiResource(
+        'tenaga-kerja',
+        TenagaKerjaController::class
+    );
+    Route::apiResource(
+        'perusahaan-mitra',
+        PerusahaanMitraController::class
+    );
+    Route::apiResource(
+    'sertifikasi',
+    SertifikasiController::class
+);
 });

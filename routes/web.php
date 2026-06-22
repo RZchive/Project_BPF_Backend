@@ -12,12 +12,19 @@ use App\Http\Controllers\LaporanController;
 | Web Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
+| Route untuk halaman testing frontend sederhana.
 |
 */
 
+Route::view('/', 'login');
+
+Route::view('/lpk-test', 'lpk-test');
+
+Route::view('/tenaga-kerja-test', 'tenaga-kerja-test');
+Route::view(
+    '/perusahaan-mitra-test',
+    'perusahaan-mitra-test'
+);
 Route::get('/', function () {
     return view('welcome');
 });
