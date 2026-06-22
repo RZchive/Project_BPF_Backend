@@ -17,7 +17,8 @@ class Sertifikasi extends Model
         'lembaga_sertifikasi',
         'nomor_sertifikat',
         'tanggal_terbit',
-        'masa_berlaku'
+        'masa_berlaku',
+        'foto'
     ];
 
     /**

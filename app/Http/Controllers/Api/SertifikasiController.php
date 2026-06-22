@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Sertifikasi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SertifikasiController extends Controller
 {
@@ -30,8 +31,13 @@ class SertifikasiController extends Controller
             'lembaga_sertifikasi'  => 'required|string|max:255',
             'nomor_sertifikat'     => 'required|string|max:255',
             'tanggal_terbit'       => 'required|date',
-            'masa_berlaku'         => 'nullable|date'
+            'masa_berlaku'         => 'nullable|date',
+            'foto'                 => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120'
         ]);
+
+        if ($request->hasFile('foto')) {
+            $validated['foto'] = $request->file('foto')->store('sertifikasi', 'public');
+        }
 
         $sertifikasi = Sertifikasi::create($validated);
 
@@ -83,8 +89,16 @@ class SertifikasiController extends Controller
             'lembaga_sertifikasi'  => 'required|string|max:255',
             'nomor_sertifikat'     => 'required|string|max:255',
             'tanggal_terbit'       => 'required|date',
-            'masa_berlaku'         => 'nullable|date'
+            'masa_berlaku'         => 'nullable|date',
+            'foto'                 => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120'
         ]);
+
+        if ($request->hasFile('foto')) {
+            if ($sertifikasi->foto) {
+                Storage::disk('public')->delete($sertifikasi->foto);
+            }
+            $validated['foto'] = $request->file('foto')->store('sertifikasi', 'public');
+        }
 
         $sertifikasi->update($validated);
 
@@ -107,6 +121,10 @@ class SertifikasiController extends Controller
                 'message' => 'Data sertifikasi tidak ditemukan'
             ], 404);
 
+        }
+
+        if ($sertifikasi->foto) {
+            Storage::disk('public')->delete($sertifikasi->foto);
         }
 
         $sertifikasi->delete();

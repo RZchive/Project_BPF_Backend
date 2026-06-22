@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -22,8 +23,12 @@ class TracerStudyController extends Controller
             });
         }
 
-        $data = $query->paginate(10);
-        return response()->json(['success' => true, 'data' => $data]);
+        $data = $query->latest()->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 
     public function store(Request $request)
@@ -31,41 +36,85 @@ class TracerStudyController extends Controller
         $validated = $request->validate([
             'tenaga_kerja_id' => 'required|exists:tenaga_kerja,id',
             'status_alumni'   => 'required|in:bekerja_sesuai_bidang,membuka_usaha,belum_bekerja',
-            'nama_perusahaan' => 'nullable',
-            'jabatan'         => 'nullable',
-            'gaji'            => 'nullable',
-            'keterangan'      => 'nullable',
+            'nama_perusahaan' => 'nullable|string|max:255',
+            'jabatan'         => 'nullable|string|max:255',
+            'gaji'            => 'nullable|string|max:255',
+            'keterangan'      => 'nullable|string',
             'tanggal_update'  => 'nullable|date',
         ]);
 
-        $t = TracerStudy::create($validated);
-        return response()->json(['success' => true, 'data' => $t], 201);
+        $tracerStudy = TracerStudy::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data tracer study berhasil ditambahkan',
+            'data' => $tracerStudy
+        ], 201);
     }
 
-    public function show($id)
+    public function show(string $id)
     {
-        $t = TracerStudy::with('tenagaKerja')->findOrFail($id);
-        return response()->json(['success' => true, 'data' => $t]);
+        $tracerStudy = TracerStudy::with('tenagaKerja')->find($id);
+
+        if (!$tracerStudy) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tracer study tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $tracerStudy
+        ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
-        $t = TracerStudy::findOrFail($id);
-        $request->validate([
-            'status_alumni'   => 'sometimes|in:bekerja_sesuai_bidang,membuka_usaha,belum_bekerja',
-            'nama_perusahaan' => 'nullable',
-            'jabatan'         => 'nullable',
-            'gaji'            => 'nullable',
-            'keterangan'      => 'nullable',
+        $tracerStudy = TracerStudy::find($id);
+
+        if (!$tracerStudy) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tracer study tidak ditemukan'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'tenaga_kerja_id' => 'required|exists:tenaga_kerja,id',
+            'status_alumni'   => 'required|in:bekerja_sesuai_bidang,membuka_usaha,belum_bekerja',
+            'nama_perusahaan' => 'nullable|string|max:255',
+            'jabatan'         => 'nullable|string|max:255',
+            'gaji'            => 'nullable|string|max:255',
+            'keterangan'      => 'nullable|string',
             'tanggal_update'  => 'nullable|date',
         ]);
-        $t->update($request->all());
-        return response()->json(['success' => true, 'data' => $t]);
+
+        $tracerStudy->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data tracer study berhasil diperbarui',
+            'data' => $tracerStudy
+        ]);
     }
 
-    public function destroy($id)
+    public function destroy(string $id)
     {
-        TracerStudy::findOrFail($id)->delete();
-        return response()->json(['success' => true, 'message' => 'Data berhasil dihapus']);
+        $tracerStudy = TracerStudy::find($id);
+
+        if (!$tracerStudy) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tracer study tidak ditemukan'
+            ], 404);
+        }
+
+        $tracerStudy->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data tracer study berhasil dihapus'
+        ]);
     }
 }
