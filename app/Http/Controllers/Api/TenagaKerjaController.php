@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class TenagaKerjaController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         if ($request->wantsJson() || $request->is('api/*')) {
             $data = TenagaKerja::latest()->get();
