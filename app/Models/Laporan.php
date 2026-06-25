@@ -7,7 +7,7 @@ class Laporan extends Model
 {
     protected $table = 'laporan';
     public $timestamps = false;
-    protected $fillable = ['user_id', 'jenis_laporan', 'format_file'];
+    protected $fillable = ['user_id', 'jenis_laporan', 'format_file', 'file'];
 
     public function user()
     {

@@ -29,6 +29,6 @@ class TenagaKerja extends Model
 
     public function tracerStudy()
     {
-        return $this->hasOne(TracerStudy::class, 'tenaga_kerja_id');
+       return $this->hasMany(TracerStudy::class, 'tenaga_kerja_id');
     }
 }

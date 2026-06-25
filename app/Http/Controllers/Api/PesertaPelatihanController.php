@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -9,8 +10,12 @@ class PesertaPelatihanController extends Controller
 {
     public function index()
     {
-        $data = PesertaPelatihan::with(['tenagaKerja', 'pelatihan'])->paginate(10);
-        return response()->json(['success' => true, 'data' => $data]);
+        $data = PesertaPelatihan::with(['tenagaKerja', 'pelatihan'])->latest()->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 
     public function store(Request $request)
@@ -21,29 +26,74 @@ class PesertaPelatihanController extends Controller
             'status_peserta'  => 'nullable|in:aktif,lulus,tidak_lulus',
         ]);
 
-        $p = PesertaPelatihan::create($validated);
-        return response()->json(['success' => true, 'data' => $p], 201);
+        $peserta = PesertaPelatihan::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data peserta pelatihan berhasil ditambahkan',
+            'data' => $peserta
+        ], 201);
     }
 
-    public function show($id)
+    public function show(string $id)
     {
-        $p = PesertaPelatihan::with(['tenagaKerja', 'pelatihan'])->findOrFail($id);
-        return response()->json(['success' => true, 'data' => $p]);
-    }
+        $peserta = PesertaPelatihan::with(['tenagaKerja', 'pelatihan'])->find($id);
 
-    public function update(Request $request, $id)
-    {
-        $p = PesertaPelatihan::findOrFail($id);
-        $request->validate([
-            'status_peserta' => 'required|in:aktif,lulus,tidak_lulus',
+        if (!$peserta) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data peserta pelatihan tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $peserta
         ]);
-        $p->update($request->only('status_peserta'));
-        return response()->json(['success' => true, 'data' => $p]);
     }
 
-    public function destroy($id)
+    public function update(Request $request, string $id)
     {
-        PesertaPelatihan::findOrFail($id)->delete();
-        return response()->json(['success' => true, 'message' => 'Data berhasil dihapus']);
+        $peserta = PesertaPelatihan::find($id);
+
+        if (!$peserta) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data peserta pelatihan tidak ditemukan'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'tenaga_kerja_id' => 'required|exists:tenaga_kerja,id',
+            'pelatihan_id'    => 'required|exists:pelatihan,id',
+            'status_peserta'  => 'nullable|in:aktif,lulus,tidak_lulus',
+        ]);
+
+        $peserta->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data peserta pelatihan berhasil diperbarui',
+            'data' => $peserta
+        ]);
+    }
+
+    public function destroy(string $id)
+    {
+        $peserta = PesertaPelatihan::find($id);
+
+        if (!$peserta) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data peserta pelatihan tidak ditemukan'
+            ], 404);
+        }
+
+        $peserta->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data peserta pelatihan berhasil dihapus'
+        ]);
     }
 }

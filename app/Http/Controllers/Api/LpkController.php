@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -7,42 +8,105 @@ use Illuminate\Http\Request;
 
 class LpkController extends Controller
 {
+    // GET /api/lpk
     public function index()
     {
-        return response()->json(['success' => true, 'data' => Lpk::with('user')->paginate(10)]);
+        $data = Lpk::with('user')->latest()->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
     }
 
+    // POST /api/lpk
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'user_id'         => 'nullable|exists:users,id',
-            'nama_lpk'        => 'required',
-            'alamat'          => 'required',
-            'bidang_keahlian' => 'required',
-            'kontak'          => 'required',
-            'email'           => 'required|email',
+            'user_id' => 'nullable|exists:users,id',
+            'nama_lpk' => 'required|string|max:255',
+            'alamat' => 'nullable|string',
+            'bidang_keahlian' => 'nullable|string|max:255',
+            'kontak' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'status_aktif' => 'boolean'
         ]);
 
         $lpk = Lpk::create($validated);
-        return response()->json(['success' => true, 'data' => $lpk], 201);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'LPK berhasil ditambahkan',
+            'data' => $lpk
+        ], 201);
     }
 
-    public function show($id)
+    // GET /api/lpk/{id}
+    public function show(string $id)
     {
-        $lpk = Lpk::with(['user', 'pelatihan'])->findOrFail($id);
-        return response()->json(['success' => true, 'data' => $lpk]);
+        $lpk = Lpk::with('user')->find($id);
+
+        if (!$lpk) {
+            return response()->json([
+                'success' => false,
+                'message' => 'LPK tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $lpk
+        ]);
     }
 
-    public function update(Request $request, $id)
+    // PUT /api/lpk/{id}
+    public function update(Request $request, string $id)
     {
-        $lpk = Lpk::findOrFail($id);
-        $lpk->update($request->all());
-        return response()->json(['success' => true, 'data' => $lpk]);
+        $lpk = Lpk::find($id);
+
+        if (!$lpk) {
+            return response()->json([
+                'success' => false,
+                'message' => 'LPK tidak ditemukan'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'user_id' => 'nullable|exists:users,id',
+            'nama_lpk' => 'required|string|max:255',
+            'alamat' => 'nullable|string',
+            'bidang_keahlian' => 'nullable|string|max:255',
+            'kontak' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'status_aktif' => 'boolean'
+        ]);
+
+        $lpk->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'LPK berhasil diperbarui',
+            'data' => $lpk
+        ]);
     }
 
-    public function destroy($id)
+    // DELETE /api/lpk/{id}
+    public function destroy(string $id)
     {
-        Lpk::findOrFail($id)->delete();
-        return response()->json(['success' => true, 'message' => 'Data berhasil dihapus']);
+        $lpk = Lpk::find($id);
+
+        if (!$lpk) {
+            return response()->json([
+                'success' => false,
+                'message' => 'LPK tidak ditemukan'
+            ], 404);
+        }
+
+        $lpk->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'LPK berhasil dihapus'
+        ]);
     }
 }

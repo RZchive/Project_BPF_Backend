@@ -8,7 +8,7 @@
         "php": "^8.1",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
-        "laravel/sanctum": "^3.3",
+        "laravel/sanctum": "*",
         "laravel/tinker": "^2.8"
     },
     "require-dev": {
@@ -53,12 +53,15 @@
         }
     },
     "config": {
-        "optimize-autoloader": true,
-        "preferred-install": "dist",
-        "sort-packages": true,
-        "allow-plugins": {
-            "pestphp/pest-plugin": true,
-            "php-http/discovery": true
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "audit": {
+        "block-insecure": false
+    },
+    "allow-plugins": {
+        "pestphp/pest-plugin": true,
+        "php-http/discovery": true
         }
     },
     "minimum-stability": "stable",
