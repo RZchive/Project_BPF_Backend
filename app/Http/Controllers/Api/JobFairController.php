@@ -7,9 +7,14 @@ use Illuminate\Http\Request;
 
 class JobFairController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $data = JobFair::with('perusahaan')->paginate(10);
+        $query = JobFair::with('perusahaan');
+        if ($request->query('paginate') === 'false') {
+            $data = $query->latest()->get();
+        } else {
+            $data = $query->latest()->paginate(10);
+        }
         return response()->json(['success' => true, 'data' => $data]);
     }
 

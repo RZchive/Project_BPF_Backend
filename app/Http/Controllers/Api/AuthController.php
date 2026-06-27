@@ -65,9 +65,14 @@ class AuthController extends Controller
      */
     public function me(Request $request)
     {
+        $user = $request->user();
+        if ($user->role === 'lpk') {
+            $user->load(['lpk.pelatihan.peserta']);
+        }
+
         return response()->json([
             'success' => true,
-            'user' => $request->user()
+            'user' => $user
         ], 200);
     }
 

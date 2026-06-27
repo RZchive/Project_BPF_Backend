@@ -7,9 +7,14 @@ use Illuminate\Http\Request;
 
 class PemaganganganController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $data = Pemagangan::with(['tenagaKerja', 'perusahaan'])->paginate(10);
+        $query = Pemagangan::with(['tenagaKerja', 'perusahaan']);
+        if ($request->query('paginate') === 'false') {
+            $data = $query->latest()->get();
+        } else {
+            $data = $query->latest()->paginate(10);
+        }
         return response()->json(['success' => true, 'data' => $data]);
     }
 

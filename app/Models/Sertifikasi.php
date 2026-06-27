@@ -2,32 +2,26 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Sertifikasi extends Model
 {
-    use HasFactory;
-
     protected $table = 'sertifikasi';
 
     protected $fillable = [
-        'tenaga_kerja_id',
+        'peserta_pelatihan_id',
         'nama_sertifikasi',
         'lembaga_sertifikasi',
         'nomor_sertifikat',
         'tanggal_terbit',
-        'masa_berlaku'
+        'masa_berlaku',
+        'file_sertifikat',
+        'status_sertifikat',
     ];
 
-    /**
-     * Relasi ke Tenaga Kerja
-     */
-    public function tenagaKerja()
+    public function pesertaPelatihan()
     {
-        return $this->belongsTo(
-            TenagaKerja::class,
-            'tenaga_kerja_id'
-        );
+        return $this->belongsTo(PesertaPelatihan::class, 'peserta_pelatihan_id')
+                    ->with(['tenagaKerja', 'pelatihan']);
     }
 }

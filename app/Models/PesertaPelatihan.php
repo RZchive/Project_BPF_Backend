@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 class PesertaPelatihan extends Model
 {
     protected $table = 'peserta_pelatihan';
-    public $timestamps = false; // hanya ada created_at
+    public $timestamps = false;
     protected $fillable = [
-        'tenaga_kerja_id', 'pelatihan_id', 'status_peserta'
+        'tenaga_kerja_id', 'pelatihan_id', 'status_peserta', 'nilai', 'foto'
     ];
 
     public function tenagaKerja()
@@ -19,5 +19,10 @@ class PesertaPelatihan extends Model
     public function pelatihan()
     {
         return $this->belongsTo(Pelatihan::class, 'pelatihan_id');
+    }
+
+    public function sertifikasi()
+    {
+        return $this->hasOne(Sertifikasi::class, 'peserta_pelatihan_id');
     }
 }
