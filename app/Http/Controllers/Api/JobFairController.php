@@ -11,14 +11,16 @@ class JobFairController extends Controller
     public function index(Request $request)
     {
         if ($request->wantsJson() || $request->is('api/*')) {
-            $data = JobFair::with('perusahaan.perusahaan')->latest()->get();
-            return response()->json([
-                'success' => true,
-                'data' => $data
-            ]);
+            $query = JobFair::with('perusahaan.perusahaan');
+            if ($request->query('paginate') === 'false') {
+                $data = $query->latest()->get();
+            } else {
+                $data = $query->latest()->paginate(10);
+            }
+            return response()->json(['success' => true, 'data' => $data]);
         }
 
-        $data = JobFair::paginate(10);
+        $data = JobFair::with('perusahaan.perusahaan')->paginate(10);
         return view('jobfair.index', compact('data'));
     }
 
