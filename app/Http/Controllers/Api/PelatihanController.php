@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -7,18 +8,6 @@ use Illuminate\Http\Request;
 
 class PelatihanController extends Controller
 {
-    private array $rules = [
-        'lpk_id'          => 'required|exists:lpk,id',
-        'nama_pelatihan'  => 'required|string|max:255',
-        'jenis_pelatihan' => 'required|string|max:255',
-        'jurusan'         => 'required|string|max:255',
-        'kuota'           => 'required|integer',
-        'tanggal_mulai'   => 'required|date',
-        'tanggal_selesai' => 'required|date',
-        'deskripsi'       => 'nullable|string',
-        'status'          => 'nullable|in:aktif,selesai',
-    ];
-
     public function index(Request $request)
     {
         $query = Pelatihan::with('lpk');
@@ -36,45 +25,102 @@ class PelatihanController extends Controller
             $query->where('status', $request->status);
         }
 
+        $data = $query->latest()->get();
+
         return response()->json([
             'success' => true,
-            'data'    => $query->orderByDesc('created_at')->paginate(10),
+            'data' => $data
         ]);
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate($this->rules);
-        $p = Pelatihan::create($validated);
-        return response()->json(['success' => true, 'data' => $p], 201);
+        $validated = $request->validate([
+            'lpk_id'          => 'required|exists:lpk,id',
+            'nama_pelatihan'  => 'required|string|max:255',
+            'jenis_pelatihan' => 'required|string|max:255',
+            'jurusan'         => 'required|string|max:255',
+            'kuota'           => 'required|integer',
+            'tanggal_mulai'   => 'required|date',
+            'tanggal_selesai' => 'required|date',
+            'deskripsi'       => 'nullable|string',
+            'status'          => 'nullable|in:aktif,selesai',
+        ]);
+
+        $pelatihan = Pelatihan::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data pelatihan berhasil ditambahkan',
+            'data' => $pelatihan
+        ], 201);
     }
 
-    public function show($id)
+    public function show(string $id)
     {
-        $p = Pelatihan::with(['lpk', 'peserta.tenagaKerja'])->findOrFail($id);
-        return response()->json(['success' => true, 'data' => $p]);
+        $pelatihan = Pelatihan::with(['lpk', 'peserta.tenagaKerja'])->find($id);
+
+        if (!$pelatihan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data pelatihan tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $pelatihan
+        ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
-        $p = Pelatihan::findOrFail($id);
-        $validated = $request->validate(array_merge($this->rules, [
-            'lpk_id' => 'sometimes|exists:lpk,id',
-            'nama_pelatihan' => 'sometimes|string|max:255',
-            'jenis_pelatihan' => 'sometimes|string|max:255',
-            'jurusan' => 'sometimes|string|max:255',
-            'kuota' => 'sometimes|integer',
-            'tanggal_mulai' => 'sometimes|date',
-            'tanggal_selesai' => 'sometimes|date',
-        ]));
+        $pelatihan = Pelatihan::find($id);
 
-        $p->update($validated);
-        return response()->json(['success' => true, 'data' => $p]);
+        if (!$pelatihan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data pelatihan tidak ditemukan'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'lpk_id'          => 'required|exists:lpk,id',
+            'nama_pelatihan'  => 'required|string|max:255',
+            'jenis_pelatihan' => 'required|string|max:255',
+            'jurusan'         => 'required|string|max:255',
+            'kuota'           => 'required|integer',
+            'tanggal_mulai'   => 'required|date',
+            'tanggal_selesai' => 'required|date',
+            'deskripsi'       => 'nullable|string',
+            'status'          => 'nullable|in:aktif,selesai',
+        ]);
+
+        $pelatihan->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data pelatihan berhasil diperbarui',
+            'data' => $pelatihan
+        ]);
     }
 
-    public function destroy($id)
+    public function destroy(string $id)
     {
-        Pelatihan::findOrFail($id)->delete();
-        return response()->json(['success' => true, 'message' => 'Data berhasil dihapus']);
+        $pelatihan = Pelatihan::find($id);
+
+        if (!$pelatihan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data pelatihan tidak ditemukan'
+            ], 404);
+        }
+
+        $pelatihan->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data pelatihan berhasil dihapus'
+        ]);
     }
 }

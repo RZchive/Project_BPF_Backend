@@ -1,11 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TenagaKerjaController;
-use App\Http\Controllers\PemaganganController;
-use App\Http\Controllers\JobFairController;
-use App\Http\Controllers\JobFairPerusahaanController;
-use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\Api\TenagaKerjaController;
+use App\Http\Controllers\Api\PemaganganController;
+use App\Http\Controllers\Api\JobFairController;
+use App\Http\Controllers\Api\JobFairPerusahaanController;
+use App\Http\Controllers\Api\LaporanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,13 +19,18 @@ use App\Http\Controllers\LaporanController;
 Route::view('/', 'login');
 
 Route::view('/lpk-test', 'lpk-test');
-
 Route::view('/tenaga-kerja-test', 'tenaga-kerja-test');
-Route::view(
-    '/perusahaan-mitra-test',
-    'perusahaan-mitra-test'
-);
-Route::get('/', function () {
+Route::view('/perusahaan-mitra-test', 'perusahaan-mitra-test');
+Route::view('/sertifikasi-test', 'sertifikasi-test');
+Route::view('/job-fair-test', 'job-fair-test');
+Route::view('/job-fair-perusahaan-test', 'job-fair-perusahaan-test');
+Route::view('/laporan-test', 'laporan-test');
+Route::view('/pelatihan-test', 'pelatihan-test');
+Route::view('/pemagangan-test', 'pemagangan-test');
+Route::view('/peserta-pelatihan-test', 'peserta-pelatihan-test');
+Route::view('/tracer-study-test', 'tracer-study-test');
+
+Route::get('/welcome', function () {
     return view('welcome');
 });
 

@@ -17,6 +17,7 @@ class Sertifikasi extends Model
         'masa_berlaku',
         'file_sertifikat',
         'status_sertifikat',
+        'foto'
     ];
 
     public function pesertaPelatihan()

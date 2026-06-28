@@ -8,9 +8,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\SertifikasiController;
 use App\Http\Controllers\Api\Lpk\PelatihanController;
 use App\Http\Controllers\Api\PesertaPelatihanController;
-use App\Http\Controllers\Api\PemaganganganController;
+use App\Http\Controllers\Api\PemaganganController;
 use App\Http\Controllers\Api\TracerStudyController;
 use App\Http\Controllers\Api\JobFairController;
+use App\Http\Controllers\Api\JobFairPerusahaanController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 
@@ -62,7 +63,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('peserta-pelatihan/import-history', [PesertaPelatihanController::class, 'importHistory']);
     Route::apiResource('peserta-pelatihan', PesertaPelatihanController::class);
 
-    Route::apiResource('pemagangan', PemaganganganController::class);
+    Route::apiResource('pemagangan', PemaganganController::class);
 
     Route::get('laporan/dashboard', [\App\Http\Controllers\Api\LaporanController::class, 'dashboard']);
     Route::post('laporan/{id}', [\App\Http\Controllers\Api\LaporanController::class, 'update']); // for multipart update
@@ -70,6 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('tracer-study', TracerStudyController::class);
 
     Route::apiResource('job-fair', JobFairController::class);
+    Route::apiResource('job-fair-perusahaan', JobFairPerusahaanController::class);
 
     Route::middleware('auth:sanctum')->get('/debug-token', function (Request $request) {
         return response()->json([
